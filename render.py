@@ -5,7 +5,7 @@ from pyrr import Matrix44
 from PIL import Image
 
 OUTPUT_VIEWS = 12
-OFF_FILE = 'data/bed_0027.off'
+OFF_FILE = '/Volumes/EXTEND_SD/ModelNet10/bed/train/bed_0033.off'
 
 ctx = moderngl.create_standalone_context()
 
@@ -63,17 +63,18 @@ for i in range(OUTPUT_VIEWS):
     ctx.clear(1.0, 1.0, 1.0)
     ctx.enable(moderngl.DEPTH_TEST)
 
-    camera_pos = (np.cos(angle) * 20.0, np.sin(angle) * 20.0, 5.0)
+    camera_pos = (np.cos(angle) * 0.4, np.sin(angle) * 0.4, 0.2)
     light.value = camera_pos
 
     proj = Matrix44.perspective_projection(45.0, 1, 0.1, 1000.0)
     lookat = Matrix44.look_at(
         camera_pos,
-        (0.0, 0.0, 0.5),
+        (0.0, 0.0, 0.0),
         (0.0, 0.0, 1.0),
     )
 
     mvp.write((proj * lookat).astype('f4').tobytes())
     vao.render()
     image = Image.frombytes('RGB', fbo.size, fbo.read(), 'raw', 'RGB', 0, -1)
+    image.resize((512, 512))
     image.save("output/out-%s.jpg" % i)

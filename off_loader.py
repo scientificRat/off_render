@@ -28,12 +28,13 @@ def load_off(file_name):
             normals.append(np.array([np.cross(l13, l21), np.cross(l21, l32), np.cross(l32, l13)]))
         else:
             raise IOError('wrong file format')
-
+    out_vertices = np.array(out_vertices)
+    out_vertices /= np.max(np.abs(out_vertices))
     return np.array(out_vertices), np.array(normals)
 
 
 def main():
-    vertices, normals = load_off('/home/scientificrat/modelnet/ModelNet10/ModelNet10/bed/test/bed_0516.off')
+    vertices, normals = load_off('/Volumes/EXTEND_SD/ModelNet10/bed/test/bed_0516.off')
     print(vertices)
     print(normals)
 
