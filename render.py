@@ -52,7 +52,7 @@ vao = ctx.vertex_array(prog, [
     (vbo_normals, '3f', 'in_norm'),
 ])
 
-delta_angle = 360 / OUTPUT_VIEWS
+delta_angle = 2 * np.pi / OUTPUT_VIEWS
 
 for i in range(OUTPUT_VIEWS):
     angle = delta_angle * i
