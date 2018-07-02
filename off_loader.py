@@ -11,10 +11,14 @@ def load_off(file_name):
     normals = []
     out_vertices = []
     state = 0
+    max_length = 0
     for i in range(2, len(split_strings)):
         arr = split_strings[i]
         if len(arr) == 3 and state == 0:
             vertex = [float(v) for v in arr]
+            length = np.sqrt(vertex[0] ** 2 + vertex[1] ** 2 + vertex[2] ** 2)
+            if length > max_length:
+                max_length = length
             vertices.append(np.array(vertex))
         elif len(arr) == 4:
             state = 1
@@ -28,8 +32,7 @@ def load_off(file_name):
             normals.append(np.array([np.cross(l13, l21), np.cross(l21, l32), np.cross(l32, l13)]))
         else:
             raise IOError('wrong file format')
-    out_vertices = np.array(out_vertices)
-    out_vertices /= np.max(np.abs(out_vertices))
+    out_vertices /= max_length
     return np.array(out_vertices), np.array(normals)
 
 

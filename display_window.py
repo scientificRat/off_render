@@ -1,7 +1,10 @@
 import time
 
 import numpy as np
+import off_loader as ol
+import moderngl
 from PyQt5 import QtOpenGL, QtWidgets
+import render
 
 
 class WindowInfo:
@@ -26,7 +29,7 @@ class WindowInfo:
 
 
 class RenderWindow(QtOpenGL.QGLWidget):
-    def __init__(self, size, title):
+    def __init__(self, render_class, off_file, size=(1280, 720), title="off_render"):
         fmt = QtOpenGL.QGLFormat()
         fmt.setVersion(3, 3)
         fmt.setProfile(QtOpenGL.QGLFormat.CoreProfile)
@@ -39,8 +42,11 @@ class RenderWindow(QtOpenGL.QGLWidget):
         self.move(QtWidgets.QDesktopWidget().rect().center() - self.rect().center())
         self.setWindowTitle(title)
 
+        self.model = ol.load_off(off_file)
+
         self.start_time = time.clock()
-        self.render_func = None
+        self.render_class = render_class
+        self.render = None
 
         self.wnd = WindowInfo()
         self.wnd.viewport = (0, 0) + size
@@ -60,21 +66,22 @@ class RenderWindow(QtOpenGL.QGLWidget):
         self.wnd.wheel += event.angleDelta().y()
 
     def paintGL(self):
-        if self.ex is None:
-            raise NotImplementedError
+        if self.render is None:
+            ctx = moderngl.create_context()
+            self.render = self.render_class(ctx=ctx)
+            self.render.load_model(*self.model)
+            self.render.setViewport(self.wnd.viewport)
         self.wnd.time = time.clock() - self.start_time
-        self.render_func()
+        angle = 5 * self.wnd.time
+        self.render.render_frame(angle)
         self.wnd.old_keys = np.copy(self.wnd.keys)
         self.wnd.wheel = 0
         self.update()
 
 
-def render_to_window(render_func, window_size=(1280, 720), window_title="off_render"):
+if __name__ == '__main__':
     app = QtWidgets.QApplication([])
-    widget = RenderWindow(window_size, window_title)
-    widget.render_func = render_func
-    widget.show()
+    render_window = RenderWindow(render.Render, '/Volumes/EXTEND_SD/ModelNet10/bed/train/bed_0067.off')
+    render_window.show()
     app.exec_()
     del app
-
-
