@@ -35,7 +35,7 @@ class Render(object):
                     vec3 light = Light - v_vert;
                     float d_light = length(light);
                     float lum = clamp(abs(dot(normalize(light), normalize(v_norm))), 0.0, 1.0) * 0.6 + 0.3;
-                    lum = clamp(50.0/(d_light*(d_light+0.02)) * lum, 0.0,1.0);
+                    lum = clamp(60.0/(d_light*(d_light+0.03)) * lum, 0.0,1.0);
                     f_color = vec4(lum * vec3(1.0, 1.0, 1.0), 0.0);
                 }
             ''',
@@ -65,9 +65,9 @@ class Render(object):
         self.ctx.clear(1.0, 1.0, 1.0)
         self.ctx.enable(moderngl.DEPTH_TEST)
 
-        camera_pos = (np.cos(angle) * 3, np.sin(angle) * 3, np.sin(15 / 180 * np.pi) * 3)
+        camera_pos = (np.cos(angle) * 3, np.sin(angle) * 3, np.sin(30 / 180 * np.pi) * 3)
         # light.value = (0, 0, 0.5)
-        self.light.value = (2.5 * camera_pos[0], 2.5 * camera_pos[1], 2.5 * camera_pos[2])
+        self.light.value = (2.3 * camera_pos[0], 2.3 * camera_pos[1], 2.3 * camera_pos[2])
 
         proj = Matrix44.perspective_projection(45.0, 1, 0.1, 1000.0)
         lookat = Matrix44.look_at(
