@@ -11,14 +11,12 @@ def load_off(file_name):
     normals = []
     out_vertices = []
     state = 0
-    max_length = 0
+    centroid = np.array([0.0, 0.0, 0.0])
+    weight_sum = 0
     for i in range(2, len(split_strings)):
         arr = split_strings[i]
         if len(arr) == 3 and state == 0:
             vertex = [float(v) for v in arr]
-            length = np.sqrt(vertex[0] ** 2 + vertex[1] ** 2 + vertex[2] ** 2)
-            if length > max_length:
-                max_length = length
             vertices.append(np.array(vertex))
         elif len(arr) == 4:
             state = 1
@@ -28,16 +26,28 @@ def load_off(file_name):
             l21 = vertices[v1] - vertices[v2]
             l32 = vertices[v2] - vertices[v3]
             l13 = vertices[v3] - vertices[v1]
-            out_vertices.append(np.array([vertices[v1], vertices[v2], vertices[v3]]))
-            normals.append(np.array([np.cross(l13, l21), np.cross(l21, l32), np.cross(l32, l13)]))
+            face_centroid = (vertices[v1] + vertices[v2] + vertices[v1]) / 3
+            weight = np.abs(np.cross(l13, l21))
+            weight_sum += weight
+            centroid += face_centroid * weight
+            out_vertices += [vertices[v1], vertices[v2], vertices[v3]]
+            normals += [np.cross(l13, l21), np.cross(l21, l32), np.cross(l32, l13)]
         else:
             raise IOError('wrong file format')
+    out_vertices = np.array(out_vertices)
+    normals = np.array(normals)
+    out_vertices -= centroid / weight_sum
+    max_length = 0
+    for vertex in out_vertices:
+        length = np.linalg.norm(vertex, ord=2)
+        if length > max_length:
+            max_length = length
     out_vertices /= max_length
-    return np.array(out_vertices), np.array(normals)
+    return out_vertices, normals
 
 
 def main():
-    vertices, normals = load_off('/Volumes/EXTEND_SD/ModelNet10/bed/test/bed_0516.off')
+    vertices, normals = load_off('/home/scientificrat/modelnet/ModelNet40/bed/test/bed_0516.off')
     print(vertices)
     print(normals)
 

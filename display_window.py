@@ -29,7 +29,7 @@ class WindowInfo:
 
 
 class RenderWindow(QtOpenGL.QGLWidget):
-    def __init__(self, render_class, off_file, size=(1280, 720), title="off_render"):
+    def __init__(self, render_class, off_file, size=(512, 512), title="off_render"):
         fmt = QtOpenGL.QGLFormat()
         fmt.setVersion(3, 3)
         fmt.setProfile(QtOpenGL.QGLFormat.CoreProfile)
@@ -72,7 +72,7 @@ class RenderWindow(QtOpenGL.QGLWidget):
             self.render.load_model(*self.model)
             self.render.setViewport(self.wnd.viewport)
         self.wnd.time = time.clock() - self.start_time
-        angle = 5 * self.wnd.time
+        angle = 9 * self.wnd.time
         self.render.render_frame(angle)
         self.wnd.old_keys = np.copy(self.wnd.keys)
         self.wnd.wheel = 0
@@ -81,7 +81,8 @@ class RenderWindow(QtOpenGL.QGLWidget):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
-    render_window = RenderWindow(render.Render, '/Volumes/EXTEND_SD/ModelNet10/bed/train/bed_0067.off')
+    render_window = RenderWindow(render.Render,
+                                 '/home/scientificrat/modelnet/ModelNet40/airplane/test/airplane_0627.off')
     render_window.show()
     app.exec_()
     del app
