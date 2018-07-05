@@ -63,6 +63,12 @@ def main():
         process_pool[i + 2].join()
         process_pool[i + 3].join()
         process_pool[i + 4].join()
+        # set to None and let gc to collect
+        process_pool[i] = None
+        process_pool[i + 1] = None
+        process_pool[i + 2] = None
+        process_pool[i + 3] = None
+        process_pool[i + 4] = None
         i += 5
         if i % 10 == 0:
             print("%d/%d" % (i, len(process_pool)))

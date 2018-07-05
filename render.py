@@ -75,8 +75,8 @@ class Render(object):
         proj = Matrix44.perspective_projection(30.0, 1, 0.1, 1000.0)
         lookat = Matrix44.look_at(
             camera_pos,
-            (0.0, 0.0, 0.0),
-            (0.0, 0.0, 1.0),
+            (0.0, 0.0, 0.0),  # look at origin
+            (0.0, 0.0, 1.0),  # camera orientation
         )
         self.mvp.write((proj * lookat).astype('f4').tobytes())
         self.vao.render()
