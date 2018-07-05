@@ -111,7 +111,7 @@ class Render(object):
 
 def main():
     render = Render()
-    off_file = "/home/scientificrat/modelnet/ModelNet40/xbox/train/xbox_0017.off"
+    off_file = "/home/scientificrat/modelnet/ModelNet40/cone/train/cone_0117.off"
     print("loading model...")
     model = ol.load_off(off_file)
     render.load_model(*model)

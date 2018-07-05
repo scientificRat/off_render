@@ -37,7 +37,7 @@ def load_off(file_name):
             weight_sum += weight
             centroid += face_centroid * weight
             out_vertices += [vertices[v1], vertices[v2], vertices[v3]]
-            normals += [np.cross(l13, l21), np.cross(l21, l32), np.cross(l32, l13)]
+            normals += [normalize(np.cross(l13, l21)), normalize(np.cross(l21, l32)), normalize(np.cross(l32, l13))]
         else:
             raise IOError('wrong file format')
     f.close()
@@ -53,8 +53,12 @@ def load_off(file_name):
     return out_vertices, normals
 
 
+def normalize(v):
+    return v / np.linalg.norm(v)
+
+
 def main():
-    vertices, normals = load_off('/home/scientificrat/modelnet/ModelNet40/bed/test/bed_0516.off')
+    vertices, normals = load_off('/home/scientificrat/modelnet/ModelNet40/cone/train/cone_0117.off')
     print(vertices)
     print(normals)
 
