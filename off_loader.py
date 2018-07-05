@@ -1,10 +1,16 @@
 import numpy as np
+import re
 
 
 def load_off(file_name):
+    np.seterr(all='raise')
     f = open(file_name, 'r')
     lines = f.readlines()
-    if lines[0] != 'OFF\n':
+    if lines[0] == 'OFF\n':
+        start_line = 2
+    elif re.match('^OFF', lines[0]) is not None:
+        start_line = 1
+    else:
         raise IOError("NOT OFF FILE")
     split_strings = [line.rstrip().split(' ') for line in lines]
     vertices = []
@@ -13,7 +19,7 @@ def load_off(file_name):
     state = 0
     centroid = np.array([0.0, 0.0, 0.0])
     weight_sum = 0
-    for i in range(2, len(split_strings)):
+    for i in range(start_line, len(split_strings)):
         arr = split_strings[i]
         if len(arr) == 3 and state == 0:
             vertex = [float(v) for v in arr]
@@ -27,13 +33,14 @@ def load_off(file_name):
             l32 = vertices[v2] - vertices[v3]
             l13 = vertices[v3] - vertices[v1]
             face_centroid = (vertices[v1] + vertices[v2] + vertices[v1]) / 3
-            weight = np.abs(np.cross(l13, l21))
+            weight = np.linalg.norm(np.cross(l13, l21))
             weight_sum += weight
             centroid += face_centroid * weight
             out_vertices += [vertices[v1], vertices[v2], vertices[v3]]
             normals += [np.cross(l13, l21), np.cross(l21, l32), np.cross(l32, l13)]
         else:
             raise IOError('wrong file format')
+    f.close()
     out_vertices = np.array(out_vertices)
     normals = np.array(normals)
     out_vertices -= centroid / weight_sum
