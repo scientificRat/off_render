@@ -34,8 +34,8 @@ class Render(object):
                 void main() {
                     vec3 light = Light - v_vert;
                     float d_light = length(light);
-                    float lum = clamp(abs(dot(normalize(light), normalize(v_norm))), 0.0, 1.0) * 0.6 + 0.3;
-                    lum = clamp(45.0/(d_light*(d_light+0.02)) * lum, 0.0,1.0);
+                    float lum = abs(dot(normalize(light), normalize(v_norm)));
+                    lum = clamp(45.0/(d_light*(d_light+0.02)) * lum, 0.0,1.0)* 0.6 +0.3;
                     f_color = vec4(lum * vec3(1.0, 1.0, 1.0), 0.0);
                 }
             ''',
@@ -65,12 +65,14 @@ class Render(object):
     def render_frame(self, angle):
         self.ctx.clear(1.0, 1.0, 1.0)
         self.ctx.enable(moderngl.DEPTH_TEST)
-        r = 2.614
-        camera_pos = (np.cos(angle) * r, np.sin(angle) * r, np.sin(30 / 180 * np.pi) * r)
-        # light.value = (0, 0, 0.5)
-        self.light.value = (2.35 * camera_pos[0], 2.35 * camera_pos[1], 2.35 * camera_pos[2])
+        camera_r = 3.88  # >= 1 / sin(pi/12)
+        light_r = 6.5
+        phi = 30 / 180 * np.pi
+        cos_angle, sin_angle, cos_phi, sin_phi = np.cos(angle), np.sin(angle), np.cos(phi), np.sin(phi)
+        camera_pos = (cos_angle * cos_phi * camera_r, sin_angle * cos_phi * camera_r, sin_phi * camera_r)
+        self.light.value = (cos_angle * cos_phi * light_r, sin_angle * cos_phi * light_r, sin_phi * light_r)
 
-        proj = Matrix44.perspective_projection(45.0, 1, 0.1, 1000.0)
+        proj = Matrix44.perspective_projection(30.0, 1, 0.1, 1000.0)
         lookat = Matrix44.look_at(
             camera_pos,
             (0.0, 0.0, 0.0),
@@ -95,7 +97,7 @@ class Render(object):
 
 def main():
     render = Render()
-    off_file = "/home/scientificrat/modelnet/ModelNet40/curtain/train/curtain_0054.off"
+    off_file = "/home/scientificrat/modelnet/ModelNet40/xbox/train/xbox_0017.off"
     print("loading model...")
     model = ol.load_off(off_file)
     render.load_model(*model)
