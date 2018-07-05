@@ -40,9 +40,14 @@ class Render(object):
                 }
             ''',
         )
+
+        self.vbo_vertices = None
+        self.vbo_normals = None
         self.vao = None
-        self.light = None
-        self.mvp = None
+        self.fbo = None
+        # uniform variables
+        self.light = self.prog['Light']
+        self.mvp = self.prog['Mvp']
 
     def setViewport(self, viewport):
         self.ctx.viewport = viewport
@@ -50,17 +55,18 @@ class Render(object):
     def load_model(self, vertices, normals):
         vertices = vertices.flatten()
         normals = normals.flatten()
-        vbo_vertices = self.ctx.buffer(vertices.astype(np.float32).tobytes())
-        vbo_normals = self.ctx.buffer(normals.astype(np.float32).tobytes())
+        if self.vbo_vertices is not None:
+            self.vbo_vertices.release()
+        if self.vbo_normals is not None:
+            self.vbo_normals.release()
+        self.vbo_vertices = self.ctx.buffer(vertices.astype(np.float32).tobytes())
+        self.vbo_normals = self.ctx.buffer(normals.astype(np.float32).tobytes())
         if self.vao is not None:
             self.vao.release()
         self.vao = self.ctx.vertex_array(self.prog, [
-            (vbo_vertices, '3f', 'in_vert'),
-            (vbo_normals, '3f', 'in_norm'),
+            (self.vbo_vertices, '3f', 'in_vert'),
+            (self.vbo_normals, '3f', 'in_norm'),
         ])
-        # uniform variables
-        self.light = self.prog['Light']
-        self.mvp = self.prog['Mvp']
 
     def render_frame(self, angle):
         self.ctx.clear(1.0, 1.0, 1.0)
@@ -83,16 +89,24 @@ class Render(object):
 
     def render_to_images(self, output_views=12):
         delta_angle = 2 * np.pi / output_views
-        fbo = self.ctx.simple_framebuffer((1024, 1024))
-        fbo.use()
+        if self.fbo is None:
+            self.fbo = self.ctx.simple_framebuffer((1024, 1024))
+        self.fbo.use()
         images = []
         for i in range(output_views):
             angle = delta_angle * i
             self.render_frame(angle)
-            image = Image.frombytes('RGB', fbo.size, fbo.read(), 'raw', 'RGB', 0, -1)
+            image = Image.frombytes('RGB', self.fbo.size, self.fbo.read(), 'raw', 'RGB', 0, -1)
             images.append(image)
-        fbo.release()
+        self.fbo.clear()
         return images
+
+    def render_and_save(self, off_file, output_dir):
+        self.load_model(*ol.load_off(off_file))
+        images = self.render_to_images()
+        for i, image in enumerate(images):
+            image = image.resize((299, 299), Image.BICUBIC)
+            image.save("%s/%s_%03d.jpg" % (output_dir, off_file.split('.')[0].split('/')[-1], i))
 
 
 def main():
