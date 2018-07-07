@@ -104,9 +104,20 @@ class Render(object):
     def render_and_save(self, off_file, output_dir):
         self.load_model(*ol.load_off(off_file))
         images = self.render_to_images()
+        self._save_images(images, off_file, output_dir)
+
+    # def _save_images_in_parallel(self, images, off_file, output_dir):
+    #     import threading as th
+    #     th.Thread(target=Render._save_images(images, off_file, output_dir)).start()
+
+    @staticmethod
+    def _save_images(images, off_file, output_dir):
         for i, image in enumerate(images):
             image = image.resize((299, 299), Image.BICUBIC)
             image.save("%s/%s_%03d.jpg" % (output_dir, off_file.split('.')[0].split('/')[-1], i))
+
+    def __del__(self):
+        print("--FINISHED--")
 
 
 def main():
