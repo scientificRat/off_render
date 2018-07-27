@@ -11,3 +11,4 @@ gen
 __pycache__/
 data/
 output/
+*.jpg

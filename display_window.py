@@ -44,7 +44,7 @@ class RenderWindow(QtOpenGL.QGLWidget):
 
         self.model = ol.load_off(off_file)
 
-        self.start_time = time.clock()
+        self.start_time = time.time()
         self.render_class = render_class
         self.render = None
 
@@ -71,8 +71,8 @@ class RenderWindow(QtOpenGL.QGLWidget):
             self.render = self.render_class(ctx=ctx)
             self.render.load_model(*self.model)
             self.render.setViewport(self.wnd.viewport)
-        self.wnd.time = time.clock() - self.start_time
-        angle = 9 * self.wnd.time
+        self.wnd.time = time.time() - self.start_time
+        angle = 0.9 * self.wnd.time
         self.render.render_frame(angle)
         self.wnd.old_keys = np.copy(self.wnd.keys)
         self.wnd.wheel = 0

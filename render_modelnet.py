@@ -1,6 +1,5 @@
 from render import Render
 import os
-import multiprocessing as mp
 
 MODEL_NET_ROOT = '/home/scientificrat/modelnet/ModelNet40'
 OUTPUT_DIR = '/home/scientificrat/modelnet/o_Modelnet40'
@@ -23,28 +22,27 @@ def make_dir_not_exist(path):
         os.makedirs(path)
 
 
-def main():
+def render_model_net(root, output_dir, output_views=12):
     # traversal the directors
-    sub_dirs = get_immediate_subdirectories(MODEL_NET_ROOT)
-    process_pool = mp.Pool(min(os.cpu_count() - 1, 20))
+    sub_dirs = get_immediate_subdirectories(root)
     render = Render()
     for sub_dir in sub_dirs:
         print("dealing " + sub_dir + "...")
         # make output dirs
-        out_sub_dir = OUTPUT_DIR + "/" + sub_dir
+        out_sub_dir = output_dir + "/" + sub_dir
         make_dir_not_exist(out_sub_dir + "/test")
         make_dir_not_exist(out_sub_dir + "/train")
         # ready to convert
-        source_dir = MODEL_NET_ROOT + "/" + sub_dir
+        source_dir = root + "/" + sub_dir
         for d in ["/test", "/train"]:
             print(d)
             curr_dir = source_dir + d
             off_files = list(get_off_file_in_dir(curr_dir))
             for i, off_file in enumerate(off_files):
-                render.render_and_save(curr_dir + "/" + off_file, out_sub_dir + d)
+                render.render_and_save(curr_dir + "/" + off_file, out_sub_dir + d, output_views)
                 if i % 10 == 0:
                     print("%d/%d" % (i, len(off_files)))
 
 
 if __name__ == '__main__':
-    main()
+    render_model_net(root=MODEL_NET_ROOT, output_dir=OUTPUT_DIR)

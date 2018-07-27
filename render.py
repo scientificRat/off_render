@@ -101,9 +101,9 @@ class Render(object):
         self.fbo.clear()
         return images
 
-    def render_and_save(self, off_file, output_dir):
+    def render_and_save(self, off_file, output_dir, output_views=12):
         self.load_model(*ol.load_off(off_file))
-        images = self.render_to_images()
+        images = self.render_to_images(output_views)
         self._save_images(images, off_file, output_dir)
 
     # def _save_images_in_parallel(self, images, off_file, output_dir):
@@ -116,9 +116,6 @@ class Render(object):
             image = image.resize((299, 299), Image.BICUBIC)
             image.save("%s/%s_%03d.jpg" % (output_dir, off_file.split('.')[0].split('/')[-1], i))
 
-    def __del__(self):
-        print("--FINISHED--")
-
 
 def main():
     render = Render()
@@ -130,7 +127,7 @@ def main():
     images = render.render_to_images()
     for i, image in enumerate(images):
         image = image.resize((512, 512), Image.BICUBIC)
-        image.save("output/out-%s.jpg" % i)
+        image.save("out-%s.jpg" % i)
     print("finished")
 
 
