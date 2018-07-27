@@ -123,8 +123,12 @@ class Render(object):
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('file', metavar='OFF_FILE', help='the off_file you want to render')
+    args = parser.parse_args()
     render = Render()
-    off_file = 'demo_assets/car_0267.off'
+    off_file = args.file
     print("loading model...")
     model = ol.load_off(off_file)
     render.load_model(*model)
