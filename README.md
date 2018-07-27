@@ -26,7 +26,9 @@ optional arguments:
 example
 ```bash  
 python3 display_window.py demo_assets/airplane_0636.off 
-```
+```  
+
+![render_window](demo_assets/airplane.png)
 
 ## render to images
 ```bash  
@@ -43,4 +45,7 @@ optional arguments:
 example
 ```bash  
 python3 render.py demo_assets/car_0267.off 
-```
+```  
+
+## render `Modelnet`  
+no doc:-\)
