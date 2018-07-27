@@ -126,6 +126,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('file', metavar='OFF_FILE', help='the off_file you want to render')
+    parser.add_argument('--views', type=int, default=12, metavar='N', help='count of views to render, default is 12')
     args = parser.parse_args()
     render = Render()
     off_file = args.file
