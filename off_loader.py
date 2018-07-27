@@ -51,7 +51,7 @@ def load_off(file_name):
 
 
 def main():
-    vertices, normals = load_off('/home/scientificrat/modelnet/ModelNet40/cone/train/cone_0117.off')
+    vertices, normals = load_off('demo_assets/car_0267.off')
     print(vertices)
     print(normals)
 

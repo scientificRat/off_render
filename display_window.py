@@ -81,8 +81,7 @@ class RenderWindow(QtOpenGL.QGLWidget):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
-    render_window = RenderWindow(render.Render,
-                                 '/home/scientificrat/modelnet/ModelNet40/xbox/train/xbox_0002.off')
+    render_window = RenderWindow(render.Render, 'demo_assets/airplane_0636.off')
     render_window.show()
     app.exec_()
     del app

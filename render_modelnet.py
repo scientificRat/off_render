@@ -1,8 +1,8 @@
 from render import Render
 import os
 
-MODEL_NET_ROOT = '/home/scientificrat/modelnet/ModelNet40'
-OUTPUT_DIR = '/home/scientificrat/modelnet/o_Modelnet40'
+MODEL_NET_ROOT = '/path/to/modelnet_root'
+OUTPUT_DIR = '/path/to/output_dir'
 
 
 def get_immediate_subdirectories(a_dir):

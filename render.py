@@ -87,7 +87,12 @@ class Render(object):
         self.mvp.write((proj * lookat).astype('f4').tobytes())
         self.vao.render()
 
-    def render_to_images(self, output_views=12):
+    def render_to_images(self, output_views=12) -> [Image]:
+        """
+        Render the model to `PIL` images
+        :param output_views: render views count
+        :return: a list of images
+        """
         delta_angle = 2 * np.pi / output_views
         if self.fbo is None:
             self.fbo = self.ctx.simple_framebuffer((1024, 1024))
@@ -119,7 +124,7 @@ class Render(object):
 
 def main():
     render = Render()
-    off_file = "/home/scientificrat/modelnet/ModelNet40/cone/train/cone_0117.off"
+    off_file = 'demo_assets/car_0267.off'
     print("loading model...")
     model = ol.load_off(off_file)
     render.load_model(*model)
