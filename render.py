@@ -128,7 +128,7 @@ def main():
     print("loading model...")
     model = ol.load_off(off_file)
     render.load_model(*model)
-    print("start render...")
+    print("start to render...")
     images = render.render_to_images()
     for i, image in enumerate(images):
         image = image.resize((512, 512), Image.BICUBIC)
