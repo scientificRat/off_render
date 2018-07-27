@@ -5,6 +5,7 @@ import off_loader as ol
 import moderngl
 from PyQt5 import QtOpenGL, QtWidgets
 import render
+import argparse
 
 
 class WindowInfo:
@@ -80,8 +81,11 @@ class RenderWindow(QtOpenGL.QGLWidget):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('file', metavar='OFF_FILE', help='the off_file you want to render')
+    args = parser.parse_args()
     app = QtWidgets.QApplication([])
-    render_window = RenderWindow(render.Render, 'demo_assets/airplane_0636.off')
+    render_window = RenderWindow(render.Render, args.file)
     render_window.show()
     app.exec_()
     del app
