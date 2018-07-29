@@ -4,6 +4,27 @@ import numpy as np
 from pyrr import Matrix44
 from PIL import Image
 
+dodecahedron_polar_pos = [[0.78539816, 0.61547971],
+                          [0.78539816, -0.61547971],
+                          [-0.78539816, 0.61547971],
+                          [-0.78539816, -0.61547971],
+                          [-0.78539816, 0.61547971],
+                          [-0.78539816, -0.61547971],
+                          [0.78539816, 0.61547971],
+                          [0.78539816, -0.61547971],
+                          [1.57079633, 1.2059325],
+                          [1.57079633, -1.2059325],
+                          [-1.57079633, 1.2059325],
+                          [-1.57079633, -1.2059325],
+                          [0., 0.36486383],
+                          [0., -0.36486383],
+                          [-0., 0.36486383],
+                          [-0., -0.36486383],
+                          [1.2059325, 0.],
+                          [-1.2059325, 0.],
+                          [-1.2059325, 0.],
+                          [1.2059325, 0.]]
+
 
 class Render(object):
     def __init__(self, ctx=None):
@@ -68,15 +89,14 @@ class Render(object):
             (self.vbo_normals, '3f', 'in_norm'),
         ])
 
-    def render_frame(self, angle):
+    def render_frame(self, theta, phi=30 / 180 * np.pi):
         self.ctx.clear(1.0, 1.0, 1.0)
         self.ctx.enable(moderngl.DEPTH_TEST)
         camera_r = 3.88  # >= 1 / sin(pi/12)
         light_r = 6.5
-        phi = 30 / 180 * np.pi
-        cos_angle, sin_angle, cos_phi, sin_phi = np.cos(angle), np.sin(angle), np.cos(phi), np.sin(phi)
-        camera_pos = (cos_angle * cos_phi * camera_r, sin_angle * cos_phi * camera_r, sin_phi * camera_r)
-        self.light.value = (cos_angle * cos_phi * light_r, sin_angle * cos_phi * light_r, sin_phi * light_r)
+        cos_theta, sin_theta, cos_phi, sin_phi = np.cos(theta), np.sin(theta), np.cos(phi), np.sin(phi)
+        camera_pos = (cos_theta * cos_phi * camera_r, sin_theta * cos_phi * camera_r, sin_phi * camera_r)
+        self.light.value = (cos_theta * cos_phi * light_r, sin_theta * cos_phi * light_r, sin_phi * light_r)
 
         proj = Matrix44.perspective_projection(30.0, 1, 0.1, 1000.0)
         lookat = Matrix44.look_at(
@@ -87,28 +107,36 @@ class Render(object):
         self.mvp.write((proj * lookat).astype('f4').tobytes())
         self.vao.render()
 
-    def render_to_images(self, output_views=12) -> [Image]:
+    def render_to_images(self, output_views=12, use_dodecahedron_views=False) -> [Image]:
         """
         Render the model to `PIL` images
         :param output_views: render views count
+        :param use_dodecahedron_views: use regular dodecahedron (20 vertices), output_views is `ignored` if True
         :return: a list of images
         """
-        delta_angle = 2 * np.pi / output_views
+
         if self.fbo is None:
             self.fbo = self.ctx.simple_framebuffer((1024, 1024))
         self.fbo.use()
         images = []
-        for i in range(output_views):
-            angle = delta_angle * i
-            self.render_frame(angle)
-            image = Image.frombytes('RGB', self.fbo.size, self.fbo.read(), 'raw', 'RGB', 0, -1)
-            images.append(image)
+        if use_dodecahedron_views:
+            for theta, phi in dodecahedron_polar_pos:
+                self.render_frame(theta, phi)
+                image = Image.frombytes('RGB', self.fbo.size, self.fbo.read(), 'raw', 'RGB', 0, -1)
+                images.append(image)
+        else:
+            delta_theta = 2 * np.pi / output_views
+            for i in range(output_views):
+                angle = delta_theta * i
+                self.render_frame(angle)
+                image = Image.frombytes('RGB', self.fbo.size, self.fbo.read(), 'raw', 'RGB', 0, -1)
+                images.append(image)
         self.fbo.clear()
         return images
 
-    def render_and_save(self, off_file, output_dir, output_views=12):
+    def render_and_save(self, off_file, output_dir, output_views=12, use_dodecahedron_views=False):
         self.load_model(*ol.load_off(off_file))
-        images = self.render_to_images(output_views)
+        images = self.render_to_images(output_views, use_dodecahedron_views=use_dodecahedron_views)
         self._save_images(images, off_file, output_dir)
 
     # def _save_images_in_parallel(self, images, off_file, output_dir):
@@ -127,6 +155,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('file', metavar='OFF_FILE', help='the off_file you want to render')
     parser.add_argument('--views', type=int, default=12, metavar='N', help='count of views to render, default is 12')
+    parser.add_argument('--dodecahedron', action='store_true', help='use dodecahedron camera settings')
     args = parser.parse_args()
     render = Render()
     off_file = args.file
@@ -134,7 +163,7 @@ def main():
     model = ol.load_off(off_file)
     render.load_model(*model)
     print("start to render...")
-    images = render.render_to_images()
+    images = render.render_to_images(args.views, args.dodecahedron)
     for i, image in enumerate(images):
         image = image.resize((512, 512), Image.BICUBIC)
         image.save("out-%s.jpg" % i)

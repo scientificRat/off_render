@@ -6,7 +6,7 @@
 * ModernGL
 * PyQt5
 
-### install hint
+### install requirements instructions
 ```bash  
 pip3 install moderngl
 pip3 install pyqt5  
@@ -32,19 +32,21 @@ python3 display_window.py demo_assets/airplane_0636.off
 
 ## render to images
 ```bash  
-usage: render.py [-h] [--views N] OFF_FILE
+usage: render.py [-h] [--views N] [--dodecahedron] OFF_FILE
 
 positional arguments:
-  OFF_FILE    the off_file you want to render
+  OFF_FILE        the off_file you want to render
 
 optional arguments:
-  -h, --help  show this help message and exit
-  --views N   count of views to render, default is 12
+  -h, --help      show this help message and exit
+  --views N       count of views to render, default is 12
+  --dodecahedron  use dodecahedron camera settings
 
 ```
 example
 ```bash  
-python3 render.py demo_assets/car_0267.off 
+python3 render.py demo_assets/car_0267.off  
+python3 render.py --dodecahedron demo_assets/car_0267.off
 ```  
 
 ## render `Modelnet`  

@@ -22,9 +22,9 @@ def make_dir_not_exist(path):
         os.makedirs(path)
 
 
-def render_model_net(root, output_dir, output_views=12):
+def render_model_net(root, output_dir, output_views=12, use_dodecahedron=False):
     # traversal the directors
-    sub_dirs = get_immediate_subdirectories(root)
+    sub_dirs = sorted(get_immediate_subdirectories(root))
     render = Render()
     for sub_dir in sub_dirs:
         print("dealing " + sub_dir + "...")
@@ -39,10 +39,10 @@ def render_model_net(root, output_dir, output_views=12):
             curr_dir = source_dir + d
             off_files = list(get_off_file_in_dir(curr_dir))
             for i, off_file in enumerate(off_files):
-                render.render_and_save(curr_dir + "/" + off_file, out_sub_dir + d, output_views)
+                render.render_and_save(curr_dir + "/" + off_file, out_sub_dir + d, output_views, use_dodecahedron)
                 if i % 10 == 0:
                     print("%d/%d" % (i, len(off_files)))
 
 
 if __name__ == '__main__':
-    render_model_net(root=MODEL_NET_ROOT, output_dir=OUTPUT_DIR)
+    render_model_net(root=MODEL_NET_ROOT, output_dir=OUTPUT_DIR, use_dodecahedron=False)
